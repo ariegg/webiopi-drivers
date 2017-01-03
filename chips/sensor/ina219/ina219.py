@@ -14,7 +14,7 @@
 #
 #   Changelog
 #
-#   1.0    2017/01/02    Initial release
+#   1.0    2017/01/03    Initial release
 #
 #   Config parameters
 #
@@ -43,7 +43,7 @@
 #   - currentLSB    Float       Value of the current LSB to use. Default is None.
 #                               If you mistrust the automatic calibration you can
 #                               set the current LSB manual with this parameter. If
-#                               used, make sure to manual set the correct gaindiv also.
+#                               used, make sure to manual set the desired gaindiv also.
 #   - bus           String      Name of the I2C bus
 #
 #   Usage remarks
@@ -80,7 +80,8 @@
 #   - Updating of the mode value at runtime allows triggered conversions and power-down
 #     of the chip.
 #   - If you are unsure about the calculated values set debugging to "True" and look at
-#     the debugging messages as they will notify you about all resulting values.
+#     the debugging messages as they will notify you about all resulting values. Or
+#     call getConfiguration() to see all values.
 #   - If you encounter overflow (getting the overflow error) try to increase the
 #     gaindiv value or reduce the shunt value (please as real hardware change).
 #
@@ -110,7 +111,7 @@
 
 from webiopi.utils.logger import debug
 from webiopi.decorators.rest import request, response, api
-from webiopi.utils.types import toint, signInteger
+from webiopi.utils.types import toint, signInteger, M_JSON
 from webiopi.devices.i2c import I2C
 from webiopi.devices.sensor import Current, Voltage, Power
 
@@ -165,13 +166,12 @@ class INA219(I2C, Current, Voltage, Power):
             self.__calibrate__(vmax, imax)
         else:
             self.__setVrange__(toint(vrange))
-            self.setGaindiv(toint(gaindiv))
+            self.__setGaindiv__(toint(gaindiv))
             if currentLSB != None:
-                currentLSB = float(currentLSB)
-                self.setCurrentLSB(currentLSB)
-        self.setMode(toint(mode))
-        self.setBadc(toint(badc))
-        self.setSadc(toint(sadc))
+                self.__setCurrentLSB__(float(currentLSB))
+        self.__setMode__(toint(mode))
+        self.__setBadc__(toint(badc))
+        self.__setSadc__(toint(sadc))
 
 #---------- Abstraction framework contracts ----------
 
@@ -210,15 +210,18 @@ class INA219(I2C, Current, Voltage, Power):
 
     @api("Device", 3, "feature", "driver")
     @request("POST", "run/calibrate/%(pars)s")
-    @response("%s")
+    @response(contentType=M_JSON)
     def calibrate(self, pars):
         (vmax, imax) = pars.split(",")
         vmax = float(vmax)
         if vmax <= 0 or vmax > 32:
-            raise ValueError("Calibration parameter error, vmax:%.3f out of allowed range [0 < vmax <= 32]" % vmax)
+            raise ValueError("Calibration parameter error, vmax:%f out of allowed range [0 < vmax <= 32]" % vmax)
         imax = float(imax)
-        calvmax, calimax = self.__calibrate__(vmax, imax)
-        return "Chip is calibrated to Vmax=%.3f V and Imax=%f A." % (calvmax, calimax)
+        self.__calibrate__(vmax, imax)
+        values = self.getConfiguration()
+        values["vmax required"] = "%f" % vmax
+        values["imax required"] = "%f" % imax
+        return values
 
     def __calibrate__(self, vmax, imax):
         if vmax > 16:
@@ -228,9 +231,8 @@ class INA219(I2C, Current, Voltage, Power):
         gaindiv = 1
         shuntdiv = 1 / self._shunt
         while True:
-            imaxpossible = self.VSHUNT_FULL_SCALE_BASE_VALUE * gaindiv * shuntdiv
+            imaxpossible = self.__calculateImaxpossible__(gaindiv, shuntdiv)
             if gaindiv == 8:
-                imax = imaxpossible
                 break
             if imax > imaxpossible:
                 gaindiv *= 2
@@ -238,7 +240,6 @@ class INA219(I2C, Current, Voltage, Power):
                 break
         self.setGaindiv(gaindiv)
         debug("%s: auto-calibrated, max possible current=%f A" % (self.__str__(), imaxpossible))
-        return vmax, imax
 
     @api("Device", 3, "feature", "driver")
     @request("POST", "run/reset")
@@ -262,6 +263,20 @@ class INA219(I2C, Current, Voltage, Power):
 #---------- Device methods that implement chip configuration settings including additional REST mappings ----------
 
     @api("Device", 3, "configuration", "driver")
+    @request("GET", "configure/*")
+    @response(contentType=M_JSON)
+    def getConfiguration(self):
+        values = {}
+        values["vmax possible"] = "%d" % self._vrange
+        values["imax possible"] = "%f" % self.__calculateImaxpossible__(self._gaindiv, 1 / self._shunt)
+        values["current LSB"] = "%f" % self._currentLSB
+        values["calibration"] = "%d" % self._cal
+        values["gaindiv"] = "%d" % self._gaindiv
+        values["shunt"] = "%f" % self._shunt
+        return values
+
+
+    @api("Device", 3, "configuration", "driver")
     @request("GET", "configure/calibration")
     @response("%d")
     def getCalibration(self):
@@ -280,10 +295,13 @@ class INA219(I2C, Current, Voltage, Power):
     def __setCalibration__(self, calibration):
         if calibration not in range(0, 65535):
             self.__write16BitRegister__(self.CALIBRATION_ADDRESS, 0) # zero out calibration register to avoid wrong measurements
+            self._cal = 0
+            debug("%s: set calibration=0" % self.__str__())
             raise ValueError("Parameter calibration:%d not in the allowed range [0 .. 65534]" % calibration)
         calibration = calibration & self.CALIBRATION_MASK
         self.__write16BitRegister__(self.CALIBRATION_ADDRESS, calibration)
-        debug("%s: set calibration=%d" % (self.__str__(), calibration))
+        self._cal = calibration
+        debug("%s: set calibration=%d" % (self.__str__(), self._cal))
 
     @api("Device", 3, "configuration", "driver")
     @request("POST", "configure/vrange/%(vrange)d")
@@ -301,7 +319,6 @@ class INA219(I2C, Current, Voltage, Power):
     def __setVrange__(self, vrange):
         if vrange not in (16, 32):
             raise ValueError("Parameter vrange:%d not one of the allowed values (16, 32)" % vrange)
-        self._vrange = vrange
         if vrange   == 16:
             bitsVrange = self.BRNG_16_VALUE
         elif vrange == 32:
@@ -309,6 +326,7 @@ class INA219(I2C, Current, Voltage, Power):
         currentValue = self.__read16BitRegister__(self.CONFIGURATION_ADDRESS)
         newValue = (currentValue & ~self.BRNG_MASK) | bitsVrange
         self.__write16BitRegister__(self.CONFIGURATION_ADDRESS, newValue)
+        self._vrange = vrange
         debug("%s: set vrange=%d V" % (self.__str__(), vrange))
 
     def __getVrange__(self):
@@ -335,7 +353,6 @@ class INA219(I2C, Current, Voltage, Power):
     def __setGaindiv__(self, gaindiv):
         if gaindiv not in (1, 2, 4, 8):
             raise ValueError("Parameter gaindiv:%d not one of the allowed values (1, 2, 4, 8)" % gaindiv)
-        self._gaindiv = gaindiv
         if gaindiv   == 1:
             bitsGaindiv = self.GAINDIV_1_VALUE
         elif gaindiv == 2:
@@ -347,9 +364,9 @@ class INA219(I2C, Current, Voltage, Power):
         currentValue = self.__read16BitRegister__(self.CONFIGURATION_ADDRESS)
         newValue = (currentValue & ~self.GAINDIV_MASK) | bitsGaindiv
         self.__write16BitRegister__(self.CONFIGURATION_ADDRESS, newValue)
+        self._gaindiv = gaindiv
         debug("%s: set gaindiv=%d" % (self.__str__(), gaindiv))
         self.__reCalculate__()
-        self.__reCalibrate__()
 
     def __getGaindiv__(self):
         bitsGaindiv = (self.__read16BitRegister__(self.CONFIGURATION_ADDRESS) & self.GAINDIV_MASK) >> 11
@@ -454,33 +471,36 @@ class INA219(I2C, Current, Voltage, Power):
     def __setCurrentLSB__(self, currentLSB):
         self._currentLSB = currentLSB
         debug("%s: set current LSB=%f mA" % (self.__str__(), self._currentLSB * 1000))
-        self.__calculateCalibration__()
-        self.__reCalibrate__()
+        self.__setCalibration__(self.__calculateCalibration__())
 
 
 #---------- Calibration helper methods ----------
 
     def __reCalculate__(self):
-        self.__calculateCurrentLSB__()
-        self.__calculateCalibration__()
+        self.__setCurrentLSB__(self.__calculateCurrentLSB__())
 
     def __reCalibrate__(self):
         self.__setCalibration__(self._cal)
 
     def __calculateCurrentLSB__(self):
-        self._currentLSB = self.VSHUNT_FULL_SCALE_BASE_VALUE * self._gaindiv / self._shunt / 2**15 # in Amperes
-        debug("%s: calculated current LSB=%f mA" % (self.__str__(), self._currentLSB * 1000))
+        calCurrentLSB = self.VSHUNT_FULL_SCALE_BASE_VALUE * self._gaindiv / self._shunt / 2**15 # in Amperes
+        debug("%s: calculated current LSB=%f mA" % (self.__str__(), calCurrentLSB * 1000))
+        return calCurrentLSB
 
     def __calculateCalibration__(self):
-        self._cal = int(self.CALIBRATION_CONSTANT_VALUE / self._currentLSB / self._shunt) # this does trunc
-        debug("%s: calculated calibration=%d" % (self.__str__(), self._cal))
+        calCal = int(self.CALIBRATION_CONSTANT_VALUE / self._currentLSB / self._shunt) # this does trunc
+        debug("%s: calculated calibration=%d" % (self.__str__(), calCal))
+        return calCal
+
+    def __calculateImaxpossible__(self, gaindiv, shuntdiv):
+        return self.VSHUNT_FULL_SCALE_BASE_VALUE * gaindiv * shuntdiv
 
 
 #---------- Register helper methods ----------
 
     def __read16BitRegister__(self, addr):
-        reg_bytes  = self.readRegisters(addr, 2)
-        return reg_bytes[0] << 8 | reg_bytes[1]
+        regBytes  = self.readRegisters(addr, 2)
+        return regBytes[0] << 8 | regBytes[1]
 
     def __write16BitRegister__(self, addr, word):
         data = bytearray(2)
