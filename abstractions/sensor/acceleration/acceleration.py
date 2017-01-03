@@ -1,7 +1,18 @@
-class Acceleration():
+
+class Acceleration(LinearAcceleration, AngularAcceleration):
+ 
+    def __family__(self):
+        return [LinearAcceleration.__family__(self), AngularAcceleration.__family__(self)]
+
+class AngularAcceleration():
     
     def __family__(self):
-        return "Acceleration"
+        return "AngularAcceleration"
+
+class LinearAcceleration():
+    
+    def __family__(self):
+        return "LinearAcceleration"
 
     def __getMeterPerSquareSecondX__(self):
         raise NotImplementedError
