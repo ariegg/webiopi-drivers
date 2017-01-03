@@ -74,15 +74,15 @@ class LinearAcceleration():
     @request("GET", "sensor/acceleration/gravity/x/mg")
     @response("%d")
     def getMilliGravityX(self):
-        return float(self.__getGravityX__()) / 1000.0
+        return float(self.__getGravityX__()) * 1000.0
     
     @request("GET", "sensor/acceleration/gravity/y/mg")
     @response("%d")
     def getMilliGravityY(self):
-        return float(self.__getGravityY__()) / 1000.0
+        return float(self.__getGravityY__()) * 1000.0
 
     @request("GET", "sensor/acceleration/gravity/z/mg")
     @response("%d")
     def getMilliGravityZ(self):
-        return float(self.__getGravityZ__()) / 1000.0
+        return float(self.__getGravityZ__()) * 1000.0
    
