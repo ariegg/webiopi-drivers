@@ -28,3 +28,4 @@ class Voltage():
     @response("%.03f")
     def getMillivolt(self):
         return self.__getVolt__() / 1000
+
