@@ -1,3 +1,5 @@
+#   This code has to be added to __init__.py in folder .../devices/sensor
+
 class Voltage():
     def __family__(self):
         return "Voltage"
