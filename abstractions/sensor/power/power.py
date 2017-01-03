@@ -35,3 +35,5 @@ class Power():
     @response("%.03f")
     def getMilliwatt(self):
         return self.__getWatt__() * 1000
+
+    
