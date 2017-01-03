@@ -1,3 +1,5 @@
+#   This code has to be added to __init__.py in folder .../devices/sensor
+
 class Color():
     def __family__(self):
         return "Color"
