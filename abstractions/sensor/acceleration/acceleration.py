@@ -9,6 +9,15 @@ class AngularAcceleration():
     def __family__(self):
         return "AngularAcceleration"
 
+    def __getRadianPerSquareSecondX__(self):
+        raise NotImplementedError
+
+    @request("GET", "sensor/acceleration/angular/x/rad_s2")
+    @response("%.2f")
+    def getRadianPerSquareSecondX(self):
+        return self.__getRadianPerSquareSecondX__()
+
+
 class LinearAcceleration():
     
     def __family__(self):
