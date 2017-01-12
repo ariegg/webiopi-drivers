@@ -187,7 +187,7 @@ class INA219(I2C, Current, Voltage, Power):
     def __getMilliampere__(self):
         rawCurrent = self.__read16BitRegister__(self.CURRENT_ADDRESS)
         debug("%s: raw current=%s" % (self.__str__(), bin(rawCurrent)))
-        return signInteger(rawCurrent, 15) * self._currentLSB * 1000 # scale from Amperes to milliAmperes
+        return signInteger(rawCurrent, 16) * self._currentLSB * 1000 # scale from Amperes to milliAmperes
 
 #---------- Voltage abstraction related methods ----------
 
