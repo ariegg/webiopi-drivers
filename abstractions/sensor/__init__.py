@@ -1,5 +1,5 @@
-#   Copyright 2012-2016 Eric Ptak - trouch.com
-#   Copyright 2016 Andreas Riegg - t-h-i-n-x.net
+#   Copyright 2012-2017 Eric Ptak - trouch.com
+#   Copyright 2016-2017 Andreas Riegg - t-h-i-n-x.net
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 #   1.2    2016-08-22    Added TCS3472X color sensors.
 #   1.3    2016-09-26    Added all SENSORS class.
 #   1.4    2016-12-12    Added Current, Voltage and Power abstractions.
+#   1.5    2017-01-10    Added Acceleration abstractions.
+#   1.6    2017-01-12    Added Velocity abstractions.
 #
 
 from webiopi.utils.types import toint
@@ -326,7 +328,7 @@ class Color():
         values["red"]   = "%d" % r
         values["green"] = "%d" % g
         values["blue"]  = "%d" % b
-        values["k"]     = "%d"    % self.RGB16bpp2Kelvin(rgb16bpp_values)
+        values["K"]     = "%d"    % self.RGB16bpp2Kelvin(rgb16bpp_values)
         return values
 
     @api("Color", 1)
@@ -339,7 +341,7 @@ class Color():
         values["red"]   = "%d" % r16
         values["green"] = "%d" % g16
         values["blue"]  = "%d" % b16
-        values["k"]     = "%d"    % self.RGB16bpp2Kelvin(rgb16bpp_values)
+        values["K"]     = "%d"    % self.RGB16bpp2Kelvin(rgb16bpp_values)
         return values
 
     @api("Color")
@@ -403,13 +405,13 @@ class Current():
     def currentWildcard(self):
         values = {}
         current = self.__getMilliampere__()
-        values["mA"] = "%.03f" % current
-        values["A"]  = "%.03f" % (current * 1000)
+        values["mA"] = "%.3f" % current
+        values["A"]  = "%.3f" % (current * 1000)
         return values
 
     @api("Current")
     @request("GET", "sensor/current/mA")
-    @response("%.03f")
+    @response("%.3f")
     def getMilliampere(self):
         return self.__getMilliampere__()
 
@@ -432,19 +434,19 @@ class Voltage():
     def voltageWildcard(self):
         values = {}
         voltage = self.__getVolt__()
-        values["V"]  = "%.03f" % voltage
-        values["mV"] = "%.03f" % (voltage / 1000)
+        values["V"]  = "%.3f" % voltage
+        values["mV"] = "%.3f" % (voltage / 1000)
         return values
 
     @api("Voltage")
     @request("GET", "sensor/voltage/V")
-    @response("%.03f")
+    @response("%.3f")
     def getVolt(self):
         return self.__getVolt__()
 
     @api("Voltage")
     @request("GET", "sensor/voltage/mV")
-    @response("%.03f")
+    @response("%.3f")
     def getMillivolt(self):
         return self.__getVolt__() / 1000
 
@@ -461,28 +463,317 @@ class Power():
     def powerWildcard(self):
         values = {}
         power = self.__getWatt__()
-        values["kW"] = "%.03f" % (power * 1000)
-        values["W"]  = "%.03f" % power
-        values["mW"] = "%.03f" % (power / 1000)
+        values["kW"] = "%.3f" % (power * 1000)
+        values["W"]  = "%.3f" % power
+        values["mW"] = "%.3f" % (power / 1000)
         return values
 
     @api("Power")
     @request("GET", "sensor/power/kW")
-    @response("%.03f")
+    @response("%.3f")
     def getKilowatt(self):
         return self.__getWatt__() / 1000
 
     @api("Power")
     @request("GET", "sensor/power/W")
-    @response("%.03f")
+    @response("%.3f")
     def getWatt(self):
         return self.__getWatt__()
 
     @api("Power")
     @request("GET", "sensor/power/mW")
-    @response("%.03f")
+    @response("%.3f")
     def getMilliwatt(self):
         return self.__getWatt__() * 1000
+
+
+class LinearVelocity():
+    
+    def __family__(self):
+        return "LinearVelocity"
+
+    def __getMeterPerSecondX__(self):
+        raise NotImplementedError
+        
+    def __getMeterPerSecondY__(self):
+        raise NotImplementedError
+        
+    def __getMeterPerSecondZ__(self):
+        raise NotImplementedError
+        
+    def MeterPerSecond2KmPerHour(self, value=0):
+        return value * 3.6
+
+    def KmPerHour2MeterPerSecond(self, value=0):
+        return value / 3.6
+
+    @api("LinearVelocity", 0)
+    @request("GET", "sensor/velocity/linear/*")
+    @response(contentType=M_JSON)
+    def linearVelocityWildcard(self):
+        values = {}
+        x = self.getMeterPerSecondX()
+        y = self.getMeterPerSecondY()
+        z = self.getMeterPerSecondZ()
+        values["x.m/s"] = "%.3f" % x
+        values["y.m/s"] = "%.3f" % y
+        values["z.m/s"] = "%.3f" % z
+        return values
+
+    @api("LinearVelocity", 0)
+    @request("GET", "sensor/velocity/speed/*")
+    @response(contentType=M_JSON)
+    def speedWildcard(self):
+        values = {}
+        x = self.MeterPerSecond2KmPerHour(self.getMeterPerSecondX())
+        y = self.MeterPerSecond2KmPerHour(self.getMeterPerSecondY())
+        z = self.MeterPerSecond2KmPerHour(self.getMeterPerSecondZ())
+        values["x.km/h"] = "%.3f" % x
+        values["y.km/h"] = "%.3f" % y
+        values["z.km/h"] = "%.3f" % z
+        return values
+
+    @request("GET", "sensor/velocity/linear/x/m_s")
+    @response("%.3f")
+    def getMeterPerSecondX(self):
+        return self.__getMeterPerSecondX__()
+
+    @request("GET", "sensor/velocity/linear/y/m_s")
+    @response("%.3f")
+    def getMeterPerSecondY(self):
+        return self.__getMeterPerSecondY__()
+
+    @request("GET", "sensor/velocity/linear/z/m_s")
+    @response("%.3f")
+    def getMeterPerSecondZ(self):
+        return self.__getMeterPerSecondZ__()
+
+class AngularVelocity():
+
+    def PI(self):
+        return 3.141592653589793
+    
+    def __family__(self):
+        return "AngularVelocity"
+
+    def __getRadianPerSecondX__(self):
+        raise NotImplementedError
+
+    def __getRadianPerSecondY__(self):
+        raise NotImplementedError
+
+    def __getRadianPerSecondZ__(self):
+        raise NotImplementedError
+
+    def RadianPerSecond2DegreePerSecond(self, value=0):
+        return value / self.PI() * 180 
+
+    def DegreePerSecond2RadianPerSecond(self, value=0):
+        return value * self.PI() / 180
+
+    def RadianPerSecond2Hertz(self, value=0):
+        return value / self.PI() / 2
+
+    def Hertz2RadianPerSecond(self, value=0):
+        return value * self.PI() * 2
+
+
+    @api("AngularVelocity", 0)
+    @request("GET", "sensor/velocity/angular/*")
+    @response(contentType=M_JSON)
+    def angularVelocityWildcard(self):
+        values = {}
+        x = self.getRadianPerSecondX()
+        y = self.getRadianPerSecondY()
+        z = self.getRadianPerSecondZ()
+        values["x.rad/s"] = "%.3f" % x
+        values["y.rad/s"] = "%.3f" % y
+        values["z.rad/s"] = "%.3f" % z
+        return values
+
+    @api("AngularVelocity", 0)
+    @request("GET", "sensor/velocity/rotation/*")
+    @response(contentType=M_JSON)
+    def rotationWildcard(self):
+        values = {}
+        x = self.RadianPerSecond2Hertz(self.getRadianPerSecondX())
+        y = self.RadianPerSecond2Hertz(self.getRadianPerSecondY())
+        z = self.RadianPerSecond2Hertz(self.getRadianPerSecondZ())
+        values["x.Hz"] = "%.3f" % x
+        values["y.Hz"] = "%.3f" % y
+        values["z.Hz"] = "%.3f" % z
+        return values
+
+
+    @request("GET", "sensor/velocity/angular/x/rad_s")
+    @response("%.3f")
+    def getRadianPerSecondX(self):
+        return self.__getRadianPerSecondX__()
+
+    @request("GET", "sensor/velocity/angular/y/rad_s")
+    @response("%.3f")
+    def getRadianPerSecondY(self):
+        return self.__getRadianPerSecondY__()
+    
+    @request("GET", "sensor/velocity/angular/z/rad_s")
+    @response("%.3f")
+    def getRadianPerSecondZ(self):
+        return self.__getRadianPerSecondZ__()
+
+class Velocity(LinearVelocity, AngularVelocity):
+ 
+    def __family__(self):
+        return [LinearVelocity.__family__(self), AngularVelocity.__family__(self)]
+
+class LinearAcceleration():
+
+    def StandardGravity(self):
+        return 9.80665 
+    
+    def __family__(self):
+        return "LinearAcceleration"
+
+    def __getMeterPerSquareSecondX__(self):
+        raise NotImplementedError
+        
+    def __getMeterPerSquareSecondY__(self):
+        raise NotImplementedError
+        
+    def __getMeterPerSquareSecondZ__(self):
+        raise NotImplementedError
+        
+    def __getGravityX__(self):
+        raise NotImplementedError
+        
+    def __getGravityY__(self):
+        raise NotImplementedError
+
+    def __getGravityZ__(self):
+        raise NotImplementedError
+
+    def MeterPerSquareSecond2Gravity(self, value=0):
+        return value / self.StandardGravity() 
+
+    def Gravity2MeterPerSquareSecond(self, value=0):
+        return value * self.StandardGravity() 
+
+    @api("LinearAcceleration", 0)
+    @request("GET", "sensor/acceleration/linear/*")
+    @response(contentType=M_JSON)
+    def linearAccelerationWildcard(self):
+        values = {}
+        x = self.getMeterPerSquareSecondX()
+        y = self.getMeterPerSquareSecondY()
+        z = self.getMeterPerSquareSecondZ()
+        values["x.m/s2"] = "%.3f" % x
+        values["y.m/s2"] = "%.3f" % y
+        values["z.m/s2"] = "%.3f" % z
+        return values
+
+    @api("LinearAcceleration", 0)
+    @request("GET", "sensor/acceleration/gravity/*")
+    @response(contentType=M_JSON)
+    def gravityAccelerationWildcard(self):
+        values = {}
+        x = self.getGravityX()
+        y = self.getGravityY()
+        z = self.getGravityZ()
+        values["x.g"] = "%.3f" % x
+        values["y.g"] = "%.3f" % y
+        values["z.g"] = "%.3f" % z
+        return values
+
+    @request("GET", "sensor/acceleration/linear/x/m_s2")
+    @response("%.3f")
+    def getMeterPerSquareSecondX(self):
+        return self.__getMeterPerSquareSecondX__()
+
+    @request("GET", "sensor/acceleration/linear/y/m_s2")
+    @response("%.3f")
+    def getMeterPerSquareSecondY(self):
+        return self.__getMeterPerSquareSecondY__()
+
+    @request("GET", "sensor/acceleration/linear/z/m_s2")
+    @response("%.3f")
+    def getMeterPerSquareSecondZ(self):
+        return self.__getMeterPerSquareSecondZ__()
+
+    @request("GET", "sensor/acceleration/gravity/x/g")
+    @response("%.3f")
+    def getGravityX(self):
+        return self.__getGravityX__()
+    
+    @request("GET", "sensor/acceleration/gravity/y/g")
+    @response("%.3f")
+    def getGravityY(self):
+        return self.__getGravityY__()
+
+    @request("GET", "sensor/acceleration/gravity/z/g")
+    @response("%.3f")
+    def getGravityZ(self):
+        return self.__getGravityZ__()
+
+    @request("GET", "sensor/acceleration/gravity/x/mg")
+    @response("%.3f")
+    def getMilliGravityX(self):
+        return float(self.__getGravityX__()) * 1000.0
+    
+    @request("GET", "sensor/acceleration/gravity/y/mg")
+    @response("%.3f")
+    def getMilliGravityY(self):
+        return float(self.__getGravityY__()) * 1000.0
+
+    @request("GET", "sensor/acceleration/gravity/z/mg")
+    @response("%.3f")
+    def getMilliGravityZ(self):
+        return float(self.__getGravityZ__()) * 1000.0
+
+class AngularAcceleration():
+    
+    def __family__(self):
+        return "AngularAcceleration"
+
+    def __getRadianPerSquareSecondX__(self):
+        raise NotImplementedError
+
+    def __getRadianPerSquareSecondY__(self):
+        raise NotImplementedError
+
+    def __getRadianPerSquareSecondZ__(self):
+        raise NotImplementedError
+
+    @api("AngularAcceleration", 0)
+    @request("GET", "sensor/acceleration/angular/*")
+    @response(contentType=M_JSON)
+    def angularAccelerationWildcard(self):
+        values = {}
+        x = self.getRadianPerSquareSecondX()
+        y = self.getRadianPerSquareSecondY()
+        z = self.getRadianPerSquareSecondZ()
+        values["x.rad/s2"] = "%.3f" % x
+        values["y.rad/s2"] = "%.3f" % y
+        values["z.rad/s2"] = "%.3f" % z
+        return values
+
+    @request("GET", "sensor/acceleration/angular/x/rad_s2")
+    @response("%.3f")
+    def getRadianPerSquareSecondX(self):
+        return self.__getRadianPerSquareSecondX__()
+
+    @request("GET", "sensor/acceleration/angular/y/rad_s2")
+    @response("%.3f")
+    def getRadianPerSquareSecondY(self):
+        return self.__getRadianPerSquareSecondY__()
+    
+    @request("GET", "sensor/acceleration/angular/z/rad_s2")
+    @response("%.3f")
+    def getRadianPerSquareSecondZ(self):
+        return self.__getRadianPerSquareSecondZ__()
+
+class Acceleration(LinearAcceleration, AngularAcceleration):
+ 
+    def __family__(self):
+        return [LinearAcceleration.__family__(self), AngularAcceleration.__family__(self)]
 
 
 DRIVERS = {}
@@ -496,5 +787,9 @@ DRIVERS["hytXXX"] = ["HYT221"]
 DRIVERS["honXXXpressure"] = ["HONXSCPI", "HONXSCPTI", "HONXSCPS", "HONXSCPTS", "HONABPPI", "HONABPPTI", "HONABPPS", "HONABPPTS"]
 DRIVERS["mcptmp"] = ["MCP9808"]
 DRIVERS["ina219"] = ["INA219"]
-DRIVERS["sensormock"] = ["PRESSURE", "TEMPERATURE", "LUMINOSITY", "DISTANCE", "HUMIDITY", "COLOR", "CURRENT", "VOLTAGE", "POWER", "SENSORS"]
+DRIVERS["lis3dh"] = ["LIS3DH"]
+DRIVERS["sensormock"] = ["PRESSURE", "TEMPERATURE", "LUMINOSITY", "DISTANCE", "HUMIDITY",
+                         "COLOR", "CURRENT", "VOLTAGE", "POWER",
+                         "LINEARACCELERATION", "ANGULARACCELERATION", "ACCELERATION", "LINEARVELOCITY", "ANGULARVELOCITY", "VELOCITY",
+                         "SENSORS"]
 
