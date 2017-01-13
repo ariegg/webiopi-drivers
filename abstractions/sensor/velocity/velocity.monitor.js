@@ -12,7 +12,8 @@ WebIOPi.prototype.newDevice = function(type, name) {
 		return new AngularVelocity(name);
 	}
 
-	return undefined;
+// ...
+	
 }
 
 // ...
