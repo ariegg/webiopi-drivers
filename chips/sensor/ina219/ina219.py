@@ -161,8 +161,8 @@ class INA219(I2C, Current, Voltage, Power):
             if vmax == None:
                 vmax = toint(vrange)
             else:
-                vmax = toint(vmax)
-            imax = toint(imax)
+                vmax = float(vmax)
+            imax = float(imax)
             self.__calibrate__(vmax, imax)
         else:
             self.__setVrange__(toint(vrange))
