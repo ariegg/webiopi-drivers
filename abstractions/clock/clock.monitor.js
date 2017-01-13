@@ -8,7 +8,8 @@ WebIOPi.prototype.newDevice = function(type, name) {
 		return new Clock(name);
 	}
 
-	return undefined;
+// ...
+	
 }
 
 // ...
