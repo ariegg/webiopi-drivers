@@ -1,4 +1,4 @@
-#   Copyright 2016 Andreas Riegg - t-h-i-n-x.net
+#   Copyright 2016-2017 Andreas Riegg - t-h-i-n-x.net
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #   1.1    2016-08-12    Fixed Color 16bpp bug.
 #   1.2    2016-09-26    Added all SENSORS class.
 #   1.3    2016-12-12    Added CURRENT, VOLTAGE and POWER classes.
+#   1.3    2017-01-10    Added ACCELERATION and VELOCITY classes.
 #
 
 from webiopi.devices.sensor import Pressure
@@ -31,6 +32,12 @@ from webiopi.devices.sensor import Color
 from webiopi.devices.sensor import Current
 from webiopi.devices.sensor import Voltage
 from webiopi.devices.sensor import Power
+from webiopi.devices.sensor import Acceleration
+from webiopi.devices.sensor import LinearAcceleration
+from webiopi.devices.sensor import AngularAcceleration
+from webiopi.devices.sensor import Velocity
+from webiopi.devices.sensor import LinearVelocity
+from webiopi.devices.sensor import AngularVelocity
 from webiopi.utils.types import toint
 import random
 
@@ -159,6 +166,171 @@ class POWER(Power):
     def __getWatt__(self):
         return round(random.uniform(self.lower, self.upper), self.digits)
 
+#---
+
+class LINEARVELOCITY(LinearVelocity):
+    def __init__(self, xlower=0, xupper=10, ylower=0, yupper=10, zlower=0, zupper=10, digits=3):
+        self.xlower = toint(xlower)
+        self.xupper = toint(xupper)
+        self.ylower = toint(ylower)
+        self.yupper = toint(yupper)
+        self.zlower = toint(zlower)
+        self.zupper = toint(zupper)
+        self.digits = toint(digits)
+
+    def __str__(self):
+        return "LINEARVELOCITY"
+
+    def __getMeterPerSecondX__(self):
+        return round(random.uniform(self.xlower, self.xupper), self.digits)
+
+    def __getMeterPerSecondY__(self):
+        return round(random.uniform(self.ylower, self.yupper), self.digits)
+
+    def __getMeterPerSecondZ__(self):
+        return round(random.uniform(self.zlower, self.zupper), self.digits)
+
+
+class ANGULARVELOCITY(AngularVelocity):
+    def __init__(self, xlower=-100, xupper=100, ylower=-100, yupper=100, zlower=-100, zupper=100, digits=3):
+        self.xlower = toint(xlower)
+        self.xupper = toint(xupper)
+        self.ylower = toint(ylower)
+        self.yupper = toint(yupper)
+        self.zlower = toint(zlower)
+        self.zupper = toint(zupper)
+        self.digits = toint(digits)
+
+    def __str__(self):
+        return "ANGULARVELOCITY"
+
+    def __getRadianPerSecondX__(self):
+        return round(random.uniform(self.xlower, self.xupper), self.digits)
+
+    def __getRadianPerSecondY__(self):
+        return round(random.uniform(self.ylower, self.yupper), self.digits)
+
+    def __getRadianPerSecondZ__(self):
+        return round(random.uniform(self.zlower, self.zupper), self.digits)
+
+class VELOCITY(Velocity):
+    def __init__(self, linlower=0, linupper=10, anglower=-100, angupper=100, digits=3):
+        self._linear =  LINEARVELOCITY(linlower, linupper, linlower, linupper, linlower, linupper, digits)
+        self._angular = ANGULARVELOCITY(anglower, angupper, anglower, angupper, anglower, angupper, digits)
+
+    def __str__(self):
+        return "VELOCITY"
+
+    def __getMeterPerSecondX__(self):
+        return self._linear.__getMeterPerSecondX__()
+        
+    def __getMeterPerSecondY__(self):
+        return self._linear.__getMeterPerSecondY__()
+        
+    def __getMeterPerSecondZ__(self):
+        return self._linear.__getMeterPerSecondZ__()
+
+    def __getRadianPerSecondX__(self):
+        return self._angular.__getRadianPerSecondX__()
+
+    def __getRadianPerSecondY__(self):
+        return self._angular.__getRadianPerSecondY__()
+
+    def __getRadianPerSecondZ__(self):
+        return self._angular.__getRadianPerSecondZ__()
+
+
+#---
+    
+class LINEARACCELERATION(LinearAcceleration):
+    def __init__(self, xlower=-10, xupper=10, ylower=-10, yupper=10, zlower=-10, zupper=10, digits=3):
+        self.xlower = toint(xlower)
+        self.xupper = toint(xupper)
+        self.ylower = toint(ylower)
+        self.yupper = toint(yupper)
+        self.zlower = toint(zlower)
+        self.zupper = toint(zupper)
+        self.digits = toint(digits)
+
+    def __str__(self):
+        return "LINEARACCELERATION"
+
+    def __getMeterPerSquareSecondX__(self):
+        return round(random.uniform(self.xlower, self.xupper), self.digits)
+
+    def __getMeterPerSquareSecondY__(self):
+        return round(random.uniform(self.ylower, self.yupper), self.digits)
+
+    def __getMeterPerSquareSecondZ__(self):
+        return round(random.uniform(self.zlower, self.zupper), self.digits)
+
+    def __getGravityX__(self):
+        return self.__getMeterPerSquareSecondX__() / self.StandardGravity()
+
+    def __getGravityY__(self):
+        return self.__getMeterPerSquareSecondY__() / self.StandardGravity()
+
+    def __getGravityZ__(self):
+        return self.__getMeterPerSquareSecondZ__() / self.StandardGravity() + 1
+
+class ANGULARACCELERATION(AngularAcceleration):
+    def __init__(self, xlower=-100, xupper=100, ylower=-100, yupper=100, zlower=-100, zupper=100, digits=3):
+        self.xlower = toint(xlower)
+        self.xupper = toint(xupper)
+        self.ylower = toint(ylower)
+        self.yupper = toint(yupper)
+        self.zlower = toint(zlower)
+        self.zupper = toint(zupper)
+        self.digits = toint(digits)
+
+    def __str__(self):
+        return "ANGULARACCELERATION"
+
+    def __getRadianPerSquareSecondX__(self):
+        return round(random.uniform(self.xlower, self.xupper), self.digits)
+
+    def __getRadianPerSquareSecondY__(self):
+        return round(random.uniform(self.ylower, self.yupper), self.digits)
+
+    def __getRadianPerSquareSecondZ__(self):
+        return round(random.uniform(self.zlower, self.zupper), self.digits)
+
+class ACCELERATION(Acceleration):
+    def __init__(self, linlower=-10, linupper=10, anglower=-100, angupper=100, digits=3):
+        self._linear =  LINEARACCELERATION(linlower, linupper, linlower, linupper, linlower, linupper, digits)
+        self._angular = ANGULARACCELERATION(anglower, angupper, anglower, angupper, anglower, angupper, digits)
+
+    def __str__(self):
+        return "ACCELERATION"
+
+    def __getMeterPerSquareSecondX__(self):
+        return self._linear.__getMeterPerSquareSecondX__()
+        
+    def __getMeterPerSquareSecondY__(self):
+        return self._linear.__getMeterPerSquareSecondY__()
+        
+    def __getMeterPerSquareSecondZ__(self):
+        return self._linear.__getMeterPerSquareSecondZ__()
+       
+    def __getGravityX__(self):
+        return self._linear.__getGravityX__()
+        
+    def __getGravityY__(self):
+        return self._linear.__getGravityY__()
+
+    def __getGravityZ__(self):
+        return self._linear.__getGravityZ__()
+
+
+    def __getRadianPerSquareSecondX__(self):
+        return self._angular.__getRadianPerSquareSecondX__()
+
+    def __getRadianPerSquareSecondY__(self):
+        return self._angular.__getRadianPerSquareSecondY__()
+
+    def __getRadianPerSquareSecondZ__(self):
+        return self._angular.__getRadianPerSquareSecondZ__()
+
 
 class SENSORS(Pressure, Temperature, Luminosity, Distance, Humidity, Color, Current, Voltage, Power):
     def __init__(self):
@@ -223,5 +395,6 @@ class SENSORS(Pressure, Temperature, Luminosity, Distance, Humidity, Color, Curr
 
     def __getWatt__(self):
         return self._power.__getWatt__()
+
 
 
