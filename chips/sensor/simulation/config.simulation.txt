@@ -1,0 +1,54 @@
+
+#------------------------------------------------------------------------#
+[HTTP]
+enabled = true
+port = 8888
+doc-root = htdocs
+
+#------------------------------------------------------------------------#
+[COAP]
+enabled = false
+port = 5683
+multicast = false
+
+#------------------------------------------------------------------------#
+[PLATFORM]
+
+architecture = X86
+# or (ARM6, ARM7, X64, ...)
+board = PC
+# or (RPI-1, RPI-2, RPI-3, MICA-USB, BEAGLEBONEBLACK, PC, ...)
+operating-system = WINDOWS7
+# or (RASPBIAN, DEBIAN, UBUNTU, LINUX, BUSYBOX, WINDOWS, WINDOWS7, WINDOWS10, ...)
+
+#------------------------------------------------------------------------#
+[BUSES]
+
+#------------------------------------------------------------------------#
+[DEVICES]
+
+#simulated_temperature = TEMPERATURE
+#simulated_temperature = TEMPERATURE lower:-20.0 upper:80
+#simulated_temperature = TEMPERATURE gauss:yes
+#simulated_temperature = TEMPERATURE gauss:yes mean:20.0 variance:2.0
+#simulated_pressure = PRESSURE
+#simulated_luminosity = LUMINOSITY
+#simulated_distance = DISTANCE
+#simulated_humidity = HUMIDITY
+#simulated_color = COLOR
+#simulated_current = CURRENT
+#simulated_voltage = VOLTAGE
+#simulated_power = POWER
+
+#simulated_sensors = SENSORS
+
+#simulated_linear_velocity = LINEARVELOCITY
+#simulated_angular_velocity = ANGULARVELOCITY
+#simulated_velocity = VELOCITY
+
+#simulated_linear_acceleration = LINEARACCELERATION
+#simulated_angular_acceleration = ANGULARACCELERATION
+#simulated_acceleration = ACCELERATION
+
+
+
