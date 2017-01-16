@@ -289,10 +289,10 @@ class ANGULARVELOCITY(AngularVelocity, SimulatedTripleSensor):
         return self.__getNextSimulatedValueX__()
 
     def __getRadianPerSecondY__(self):
-        return self.__getNextSimulatedValueX__()
+        return self.__getNextSimulatedValueY__()
 
     def __getRadianPerSecondZ__(self):
-        return self.__getNextSimulatedValueX__()
+        return self.__getNextSimulatedValueZ__()
 
     
 class LINEARACCELERATION(LinearAcceleration, SimulatedTripleSensor):
