@@ -21,7 +21,7 @@
 #   1.2    2016-09-26    Added all SENSORS class.
 #   1.3    2016-12-12    Added CURRENT, VOLTAGE and POWER classes.
 #   1.3    2017-01-10    Added ACCELERATION and VELOCITY classes.
-#   1.4    2017-01-16    File renamed to simulatedsensor.py. Added two different
+#   1.4    2017-01-16    File renamed to simulatedsensors.py. Added two different
 #                        possibilities for randomization (uniform and gauss distribution)
 #
 #   Config parameters
