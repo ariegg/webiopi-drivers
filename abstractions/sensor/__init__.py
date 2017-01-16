@@ -23,6 +23,7 @@
 #   1.4    2016-12-12    Added Current, Voltage and Power abstractions.
 #   1.5    2017-01-10    Added Acceleration abstractions.
 #   1.6    2017-01-12    Added Velocity abstractions.
+#   1.7    2017-01-16    Reflect driver file rename to simulatedsensors.py.
 #
 
 from webiopi.utils.types import toint
@@ -56,8 +57,8 @@ class Pressure():
     def pressureWildcard(self):
         values = {}
         pressure = self.__getPascal__()
-        values["pa"] = pressure
-        values["hpa"] = "%.02f" % (pressure / 100.0)
+        values["Pa"] = pressure
+        values["hPa"] = "%.2f" % (pressure / 100.0)
         return values
 
     @api("Pressure", 0)
@@ -66,8 +67,8 @@ class Pressure():
     def pressureWildcardSea(self):
         values = {}
         pressureAtSea = self.getPascalAtSea()
-        values["pa"] = pressureAtSea
-        values["hpa"] = "%.02f" % (pressureAtSea / 100.0)
+        values["Pa"] = pressureAtSea
+        values["hPa"] = "%.02f" % (pressureAtSea / 100.0)
         return values
 
     @api("Pressure")
@@ -148,9 +149,9 @@ class Temperature():
     def temperatureWildcard(self):
         values = {}
         temperature = self.__getCelsius__()
-        values["c"] = "%.02f" % temperature
-        values["k"] = "%.02f" % self.Celsius2Kelvin(temperature)
-        values["f"] = "%.02f" % self.Celsius2Fahrenheit(temperature)
+        values["C"] = "%.2f" % temperature
+        values["K"] = "%.2f" % self.Celsius2Kelvin(temperature)
+        values["F"] = "%.2f" % self.Celsius2Fahrenheit(temperature)
         return values
 
     @api("Temperature")
@@ -184,7 +185,7 @@ class Luminosity():
     def luminosityWildcard(self):
         values = {}
         luminosity = self.__getLux__()
-        values["lux"] = "%.02f" % luminosity
+        values["lux"] = "%.2f" % luminosity
         return values
 
     @api("Luminosity")
@@ -206,12 +207,12 @@ class Distance():
     def distanceWildcard(self):
         values = {}
         distance = self.__getMillimeter__()
-        values["mm"] = "%.02f" % distance
-        values["cm"] = "%.02f" % (distance / 10)
-        values["m"]  = "%.02f" % (distance / 1000)
-        values["in"] = "%.02f" % (distance / 25.4)
-        values["ft"] = "%.02f" % (distance / 25.4 / 12)
-        values["yd"] = "%.02f" % (distance / 25.4 / 36)
+        values["mm"] = "%.2f" % distance
+        values["cm"] = "%.2f" % (distance / 10)
+        values["m"]  = "%.2f" % (distance / 1000)
+        values["in"] = "%.2f" % (distance / 25.4)
+        values["ft"] = "%.2f" % (distance / 25.4 / 12)
+        values["yd"] = "%.2f" % (distance / 25.4 / 36)
         return values
 
     @api("Distance")
@@ -417,7 +418,7 @@ class Current():
 
     @api("Current")
     @request("GET", "sensor/current/A")
-    @response("%.03f")
+    @response("%.3f")
     def getAmpere(self):
         return self.__getMilliampere__() * 1000
 
@@ -788,7 +789,7 @@ DRIVERS["honXXXpressure"] = ["HONXSCPI", "HONXSCPTI", "HONXSCPS", "HONXSCPTS", "
 DRIVERS["mcptmp"] = ["MCP9808"]
 DRIVERS["ina219"] = ["INA219"]
 DRIVERS["lis3dh"] = ["LIS3DH"]
-DRIVERS["sensormock"] = ["PRESSURE", "TEMPERATURE", "LUMINOSITY", "DISTANCE", "HUMIDITY",
+DRIVERS["simulatedsensors"] = ["PRESSURE", "TEMPERATURE", "LUMINOSITY", "DISTANCE", "HUMIDITY",
                          "COLOR", "CURRENT", "VOLTAGE", "POWER",
                          "LINEARACCELERATION", "ANGULARACCELERATION", "ACCELERATION", "LINEARVELOCITY", "ANGULARVELOCITY", "VELOCITY",
                          "SENSORS"]
