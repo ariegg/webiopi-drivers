@@ -8,6 +8,6 @@ In order to use the drivers in the original WebIOPi 0.7.22 you have to comment o
 
 #IMPORTANT:
 
-This repository does not contain a 1:1 installable package of WebIOPi that can be installed and run as it is. It is more a library of logical separated components that form the hardware abstraction layer including the gereric REST API mappings, the different hardware bus implementations and the available chip drivers for WebIOPi based on that abstraction layer.
+This repository does not contain a 1:1 installable package of WebIOPi that can be installed and run as it is. It is more a library of logical separated components that form the hardware abstraction layer including the generic REST API mappings, the different hardware bus implementations and the available chip drivers for WebIOPi based on that abstraction layer.
 
 This repository was created to save all extension work for WebIOPi in one place in a consistent way until it is decided how to proceed with the whole package.
