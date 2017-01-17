@@ -102,9 +102,9 @@ class SimulatedSingleSensor():
 
     def __str__(self):
         if self._gauss:
-            return "%s (gauss: mean=%.3f, variance=%.3f, digits=%d)" % (self._name, self._mean, self._variance, self._digits)
+            return "%s (gauss: mean=%.3f variance=%.3f digits=%d)" % (self._name, self._mean, self._variance, self._digits)
         else:
-            return "%s (uniform: lower=%.3f, upper=%.3f, digits=%d)" % (self._name, self._lower, self._upper, self._digits)
+            return "%s (uniform: lower=%.3f upper=%.3f digits=%d)" % (self._name, self._lower, self._upper, self._digits)
 
     def __getNextSimulatedValue__(self):
         if self._gauss:
@@ -206,10 +206,10 @@ class SimulatedTripleSensor():
 
     def __str__(self):
         if self._gauss:
-            return "%s (gauss: mx=%.3f, vx=%.3f, my=%.3f, vy=%.3f, mz=%.3f, vz=%.3f, digits=%d)" %  \
+            return "%s (gauss: mx=%.3f vx=%.3f my=%.3f vy=%.3f mz=%.3f vz=%.3f digits=%d)" %  \
                 (self._name, self._meanx, self._variancex, self._meany, self._variancey, self._meanz, self._variancez, self._digits)
         else:
-            return "%s (uniform: lx=%.3f, ux=%.3f, ly=%.3f, uy=%.3f, lz=%.3f, uz=%.3f, digits=%d)" % \
+            return "%s (uniform: lx=%.3f ux=%.3f ly=%.3f uy=%.3f lz=%.3f uz=%.3f digits=%d)" % \
                 (self._name, self._lowerx, self._upperx, self._lowery, self._uppery, self._lowerz, self._upperz, self._digits)
 
     def __getNextSimulatedValueX__(self):
