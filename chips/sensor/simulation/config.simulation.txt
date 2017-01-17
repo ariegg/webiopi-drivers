@@ -35,18 +35,24 @@ operating-system = WINDOWS7
 #simulated_luminosity = LUMINOSITY
 #simulated_distance = DISTANCE
 #simulated_humidity = HUMIDITY
-#simulated_color = COLOR
 #simulated_current = CURRENT
 #simulated_voltage = VOLTAGE
 #simulated_power = POWER
+#simulated_color = COLOR
+#simulated_color = COLOR lowerr:0x55 upperr:0x88 lowerg:0x20 upperg:0xB0 lowerb:0x80 upperb:0xFF
+#simulated_color = COLOR meanr:0x7F variancer:5 meang:0x7F varianceg:5 meanb:0x7F varianceb:5 gauss:yes
 
 #simulated_sensors = SENSORS
+#simulated_sensors = SENSORS gauss:yes
 
 #simulated_linear_velocity = LINEARVELOCITY
+#simulated_linear_velocity = LINEARVELOCITY lowerx:-10 upperx:10 lowery:-10 uppery:10 lowerz:-10 upperz:10
+#simulated_linear_velocity = LINEARVELOCITY meanx:0 variancex:1 meany:0 variancey:0.5 meanz:1 variancez:0.1 gauss:yes
 #simulated_angular_velocity = ANGULARVELOCITY
 #simulated_velocity = VELOCITY
 
 #simulated_linear_acceleration = LINEARACCELERATION
+#simulated_linear_acceleration = LINEARACCELERATION meanx:0 variancex:0.2 meany:0 variancey:0.5 meanz:1 variancez:0.1 gauss:yes
 #simulated_angular_acceleration = ANGULARACCELERATION
 #simulated_acceleration = ACCELERATION
 
