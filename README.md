@@ -1,6 +1,6 @@
 # WebIOPi Drivers
 
-This respository provides hardware/chip drivers for WebIOPI / T-H-I-N-X.
+This respository provides hardware/chip drivers for WebIOPi / T-H-I-N-X.
 
 They are valid for WebIOPI release 0.7.22-bus-swagger.
 
