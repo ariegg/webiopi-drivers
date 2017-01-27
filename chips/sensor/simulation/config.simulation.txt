@@ -27,6 +27,10 @@ operating-system = WINDOWS7
 #------------------------------------------------------------------------#
 [DEVICES]
 
+simulated_digital = DIGITAL channels:4
+simulated_analog = ANALOG channels:4
+simulated_pwm = PUUM channels:4
+
 #simulated_temperature = TEMPERATURE
 #simulated_temperature = TEMPERATURE lower:-20.0 upper:80
 #simulated_pressure = PRESSURE
