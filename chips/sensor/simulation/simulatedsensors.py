@@ -23,23 +23,18 @@
 #   1.3    2017-01-10    Added ACCELERATION and VELOCITY classes.
 #   1.4    2017-01-16    File renamed to simulatedsensors.py. Added two different
 #                        possibilities for randomization (uniform and gauss distribution)
+#   1.5    2017-01-26    Reduced to basic possibility for randomization (uniform distribution)
+#                        and moved other distribution possibilities to another file
+#                        "variablesimulatedsensors.py" with variable distribution settings.
 #
 #   Config parameters
 #
-#   - lower         Float       Lower bound of the simulated sensor values (uniform distribution).
-#                               
-#   - upper         Float       Upper bound of the simulated sensor values (uniform distribution).
-#                               
-#   - mean          Float       Means value of the simulated sensor values (gauss distribution).
+#   - lower/lower.  Float       Lower bound of the simulated sensor values (uniform distribution).
 #
-#   - variance      Float       Variance value of the simulated sensor values (gauss distribution).
-#
-#   - gauss         Boolean     Flag to use uniform or gauss distribution random values. Default is
-#                               "no" (use uniform duistribution values).
+#   - upper/upper.  Float       Upper bound of the simulated sensor values (uniform distribution).
 #
 #   - digits        Integer     Number of rounding digits of generated random values.
-#                               
-#                               
+#
 #
 #   Usage remarks
 #
@@ -52,17 +47,15 @@
 #   - You can use these devices also to check the correctness of some REST API calls that use
 #     the sensor values.
 #   - For each sensor object you can choose to have the simulated random values to have a uniform
-#     distribution within a lower and upper bound or to have a gauss distribution with a means
-#     and variance value.
-#   - Depending on the "gauss" flag only the lower/upper or only the means/variance
-#     parameters are used. The opposite pairs are ignored.
-#   - For triple value (channel) sensors (e.g. Color) the first 4 paramerters are also tripled
+#     distribution within a lower and upper bound.
+#   - For triple value (channel) sensors (e.g. Color) the first 2 paramerters are also tripled
 #     and can be set independent for each value channel.
+#
 #
 #   Implementation remarks
 #
 #   - This driver is implemented based on the standard random module of Python.
-#   - For simplicity, the simulated sensor class/device names are just the upper case versions of 
+#   - For simplicity, the simulated sensor class/device names are just the upper case versions of
 #     the underlying sensor abstractions (e.g. Temperature -> TEMPERATURE).
 #   - Each single value sensor instance gets its own Random object for high independence of the values.
 #   - Each triple value sensor instance gets its own three individual Random objects and two of them
@@ -84,47 +77,39 @@ from webiopi.devices.sensor import AngularAcceleration
 from webiopi.devices.sensor import Velocity
 from webiopi.devices.sensor import LinearVelocity
 from webiopi.devices.sensor import AngularVelocity
-from webiopi.utils.types import toint, str2bool
+from webiopi.utils.types import toint
 from random import Random
+
 
 #---------- Single value sensors ----------
 
 class SimulatedSingleSensor():
-    def __init__(self, lower=0, upper=100, mean=50, variance=1, gauss="no", digits=2, name="UNKNOWN"):
+    def __init__(self, lower=0, upper=100, digits=2, name="UNKNOWN"):
         self._lower = float(lower)
         self._upper = float(upper)
-        self._mean = float(mean)
-        self._variance = float(variance)
-        self._gauss = str2bool(gauss)
         self._digits = toint(digits)
         self._name = name
         self._r = Random()
 
     def __str__(self):
-        if self._gauss:
-            return "%s (gauss: mean=%.3f variance=%.3f digits=%d)" % (self._name, self._mean, self._variance, self._digits)
-        else:
-            return "%s (uniform: lower=%.3f upper=%.3f digits=%d)" % (self._name, self._lower, self._upper, self._digits)
+        return "%s (lower=%.3f upper=%.3f digits=%d)" % (self._name, self._lower, self._upper, self._digits)
 
     def __getNextSimulatedValue__(self):
-        if self._gauss:
-            return round(self._r.gauss(self._mean, self._variance), self._digits)
-        else:
-            return round(self._r.uniform(self._lower, self._upper), self._digits)
+        return round(self._r.uniform(self._lower, self._upper), self._digits)
 
 
 class PRESSURE(Pressure, SimulatedSingleSensor):
-    def __init__(self, altitude=0, external=None, lower=0, upper=100000, mean=1000, variance=10, gauss="no", digits=1):
+    def __init__(self, altitude=0, external=None, lower=0, upper=100000, digits=1):
         Pressure.__init__(self, altitude, external)
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "PRESSURE")
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "PRESSURE")
 
     def __getPascal__(self):
         return self.__getNextSimulatedValue__()
 
 class TEMPERATURE(Temperature, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=100, mean=20, variance=1, gauss="no", digits=2):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "TEMPERATURE")
-        
+    def __init__(self, lower=0, upper=100, digits=2):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "TEMPERATURE")
+
     def __getKelvin__(self):
         return self.Celsius2Kelvin()
 
@@ -135,43 +120,43 @@ class TEMPERATURE(Temperature, SimulatedSingleSensor):
         return self.Celsius2Fahrenheit()
 
 class LUMINOSITY(Luminosity, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=100000, mean=10000, variance=100, gauss="no", digits=0):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "LUMINOSITY")
+    def __init__(self, lower=0, upper=100000, digits=0):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "LUMINOSITY")
 
     def __getLux__(self):
         return self.__getNextSimulatedValue__()
 
 class DISTANCE(Distance, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=1000, mean=100, variance=10, gauss="no", digits=1):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "DISTANCE")
+    def __init__(self, lower=0, upper=1000, digits=1):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "DISTANCE")
 
     def __getMillimeter__(self):
         return self.__getNextSimulatedValue__()
 
 class HUMIDITY(Humidity, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=1, mean=10000, variance=100, gauss="no", digits=2):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "HUMIDITY")
+    def __init__(self, lower=0, upper=1, digits=2):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "HUMIDITY")
 
     def __getHumidity__(self):
         return self.__getNextSimulatedValue__()
 
 class CURRENT(Current, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=1000, mean=1, variance=0.1, gauss="no", digits=1):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "CURRENT")
+    def __init__(self, lower=0, upper=1000, digits=1):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "CURRENT")
 
     def __getMilliampere__(self):
         return self.__getNextSimulatedValue__()
 
 class VOLTAGE(Voltage, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=10, mean=10, variance=1, gauss="no", digits=2):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "VOLTAGE")
+    def __init__(self, lower=0, upper=10, digits=2):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "VOLTAGE")
 
     def __getVolt__(self):
         return self.__getNextSimulatedValue__()
 
 class POWER(Power, SimulatedSingleSensor):
-    def __init__(self, lower=0, upper=10, mean=5, variance=1, gauss="no", digits=2):
-        SimulatedSingleSensor.__init__(self, lower, upper, mean, variance, gauss, digits, "POWER")
+    def __init__(self, lower=0, upper=10, digits=2):
+        SimulatedSingleSensor.__init__(self, lower, upper, digits, "POWER")
 
     def __getWatt__(self):
         return self.__getNextSimulatedValue__()
@@ -180,22 +165,13 @@ class POWER(Power, SimulatedSingleSensor):
 #---------- Triple value sensors ----------
 
 class SimulatedTripleSensor():
-    def __init__(self, lowerx=0, upperx=100, lowery=0, uppery=100, lowerz=0, upperz=100,
-                 meanx=50, variancex=1, meany=50, variancey=1, meanz=50, variancez=1,
-                 gauss="no", digits=2, name="UNKNOWN"):
+    def __init__(self, lowerx=0, upperx=100, lowery=0, uppery=100, lowerz=0, upperz=100, digits=2, name="UNKNOWN"):
         self._lowerx = float(lowerx)
         self._upperx = float(upperx)
         self._lowery = float(lowery)
         self._uppery = float(uppery)
         self._lowerz = float(lowerz)
         self._upperz = float(upperz)
-        self._meanx = float(meanx)
-        self._variancex = float(variancex)
-        self._meany = float(meany)
-        self._variancey = float(variancey)
-        self._meanz = float(meanz)
-        self._variancez = float(variancez)
-        self._gauss = str2bool(gauss)
         self._digits = toint(digits)
         self._name = name
         self._rx = Random()
@@ -205,54 +181,40 @@ class SimulatedTripleSensor():
         self._rz.jumpahead(1000000000000)
 
     def __str__(self):
-        if self._gauss:
-            return "%s (gauss: mx=%.3f vx=%.3f my=%.3f vy=%.3f mz=%.3f vz=%.3f digits=%d)" %  \
-                (self._name, self._meanx, self._variancex, self._meany, self._variancey, self._meanz, self._variancez, self._digits)
-        else:
-            return "%s (uniform: lx=%.3f ux=%.3f ly=%.3f uy=%.3f lz=%.3f uz=%.3f digits=%d)" % \
-                (self._name, self._lowerx, self._upperx, self._lowery, self._uppery, self._lowerz, self._upperz, self._digits)
+        return "%s (lx=%.3f ux=%.3f ly=%.3f uy=%.3f lz=%.3f uz=%.3f digits=%d)" % \
+                (self._name,
+                 self._lowerx, self._upperx, self._lowery, self._uppery, self._lowerz, self._upperz,
+                 self._digits)
 
     def __getNextSimulatedValueX__(self):
-        if self._gauss:
-            return round(self._rx.gauss(self._meanx, self._variancex), self._digits)
-        else:
-            return round(self._rx.uniform(self._lowerx, self._upperx), self._digits)
+        return round(self._rx.uniform(self._lowerx, self._upperx), self._digits)
 
     def __getNextSimulatedValueY__(self):
-        if self._gauss:
-            return round(self._ry.gauss(self._meany, self._variancey), self._digits)
-        else:
-            return round(self._ry.uniform(self._lowery, self._uppery), self._digits)
+        return round(self._ry.uniform(self._lowery, self._uppery), self._digits)
 
     def __getNextSimulatedValueZ__(self):
-        if self._gauss:
-            return round(self._rz.gauss(self._meanz, self._variancez), self._digits)
-        else:
-            return round(self._rz.uniform(self._lowerz, self._upperz), self._digits)
+        return round(self._rz.uniform(self._lowerz, self._upperz), self._digits)
 
 class COLOR(Color, SimulatedTripleSensor):
-    def __init__(self, lowerr=0x00, upperr=0xFF, lowerg=0x00, upperg=0xFF, lowerb=0x00, upperb=0xFF,
-                 meanr=0x7F, variancer=10, meang=0x7F, varianceg=10, meanb=0x7F, varianceb=10,
-                 gauss="no"):
+    def __init__(self, lowerr=0x00, upperr=0xFF, lowerg=0x00, upperg=0xFF, lowerb=0x00, upperb=0xFF):
         lowerr = toint(lowerr) & 0xFF
         upperr = toint(upperr) & 0xFF
         lowerg = toint(lowerg) & 0xFF
         upperg = toint(upperg) & 0xFF
         lowerb = toint(lowerb) & 0xFF
         upperb = toint(upperb) & 0xFF
-        meanr  = toint(meanr)  & 0xFF
-        meang  = toint(meang)  & 0xFF
-        meanb  = toint(meanb)  & 0xFF
         digits = 0
-        
         SimulatedTripleSensor.__init__(self, lowerr, upperr, lowerg, upperg, lowerb, upperb,
-                                       meanr, variancer, meang, varianceg, meanb, varianceb,
-                                       gauss, digits, "COLOR")
+                                       digits, "COLOR")
+
+    def __str__(self):
+        return "%s (lred=0x%02X ured=0x%02X lgreen=0x%02X ugreen=0x%02X lblue=0x%02X ublue=0x%02X)" % \
+                (self._name, self._lowerx, self._upperx, self._lowery, self._uppery, self._lowerz, self._upperz)
 
     def __getRGB__(self):
-        red = int(self.__getNextSimulatedValueX__())
-        green = int(self.__getNextSimulatedValueY__())
-        blue = int(self.__getNextSimulatedValueZ__())
+        red = abs(int(self.__getNextSimulatedValueX__()))
+        green = abs(int(self.__getNextSimulatedValueY__()))
+        blue = abs(int(self.__getNextSimulatedValueZ__()))
         return red, green, blue
 
     def __getRGB16bpp__(self):
@@ -260,16 +222,13 @@ class COLOR(Color, SimulatedTripleSensor):
         return red*256, green*256, blue*256
 
 class LINEARVELOCITY(LinearVelocity, SimulatedTripleSensor):
-    def __init__(self, lowerx=0, upperx=10, lowery=0, uppery=10, lowerz=0, upperz=10,
-                 meanx=10, variancex=1, meany=10, variancey=1, meanz=10, variancez=1,
-                 gauss="no", digits=3):
+    def __init__(self, lowerx=0, upperx=10, lowery=0, uppery=10, lowerz=0, upperz=10, digits=3):
         SimulatedTripleSensor.__init__(self, lowerx, upperx, lowery, uppery, lowerz, upperz,
-                                       meanx, variancex, meany, variancey, meanz, variancez,
-                                       gauss, digits, "LINEARVELOCITY")
+                                       digits, "LINEARVELOCITY")
 
     def __getMeterPerSecondX__(self):
         return self.__getNextSimulatedValueX__()
-    
+
     def __getMeterPerSecondY__(self):
         return self.__getNextSimulatedValueY__()
 
@@ -278,12 +237,9 @@ class LINEARVELOCITY(LinearVelocity, SimulatedTripleSensor):
 
 
 class ANGULARVELOCITY(AngularVelocity, SimulatedTripleSensor):
-    def __init__(self, lowerx=-100, upperx=100, lowery=-100, uppery=100, lowerz=-100, upperz=100,
-                 meanx=0, variancex=1, meany=0, variancey=1, meanz=0, variancez=1,
-                 gauss="no", digits=3):
+    def __init__(self, lowerx=-100, upperx=100, lowery=-100, uppery=100, lowerz=-100, upperz=100, digits=3):
         SimulatedTripleSensor.__init__(self, lowerx, upperx, lowery, uppery, lowerz, upperz,
-                                       meanx, variancex, meany, variancey, meanz, variancez,
-                                       gauss, digits, "ANGULARVELOCITY")
+                                       digits, "ANGULARVELOCITY")
 
     def __getRadianPerSecondX__(self):
         return self.__getNextSimulatedValueX__()
@@ -294,14 +250,11 @@ class ANGULARVELOCITY(AngularVelocity, SimulatedTripleSensor):
     def __getRadianPerSecondZ__(self):
         return self.__getNextSimulatedValueZ__()
 
-    
+
 class LINEARACCELERATION(LinearAcceleration, SimulatedTripleSensor):
-    def __init__(self, lowerx=-10, upperx=10, lowery=-10, uppery=10, lowerz=-10, upperz=10,
-                 meanx=10, variancex=1, meany=10, variancey=1, meanz=10, variancez=1,
-                 gauss="no", digits=3):
+    def __init__(self, lowerx=-10, upperx=10, lowery=-10, uppery=10, lowerz=-10, upperz=10, digits=3):
         SimulatedTripleSensor.__init__(self, lowerx, upperx, lowery, uppery, lowerz, upperz,
-                                       meanx, variancex, meany, variancey, meanz, variancez,
-                                       gauss, digits, "LINEARACCELERATION")
+                                       digits, "LINEARACCELERATION")
 
     def __getMeterPerSquareSecondX__(self):
         return self.__getNextSimulatedValueX__()
@@ -323,12 +276,9 @@ class LINEARACCELERATION(LinearAcceleration, SimulatedTripleSensor):
 
 
 class ANGULARACCELERATION(AngularAcceleration, SimulatedTripleSensor):
-    def __init__(self, lowerx=-100, upperx=100, lowery=-100, uppery=100, lowerz=-100, upperz=100,
-                 meanx=0, variancex=1, meany=0, variancey=1, meanz=0, variancez=1,
-                 gauss="no", digits=3):
+    def __init__(self, lowerx=-100, upperx=100, lowery=-100, uppery=100, lowerz=-100, upperz=100, digits=3):
         SimulatedTripleSensor.__init__(self, lowerx, upperx, lowery, uppery, lowerz, upperz,
-                                       meanx, variancex, meany, variancey, meanz, variancez,
-                                       gauss, digits, "ANGULARACCELERATION")
+                                       digits, "ANGULARACCELERATION")
 
     def __getRadianPerSquareSecondX__(self):
         return self.__getNextSimulatedValueX__()
@@ -343,16 +293,16 @@ class ANGULARACCELERATION(AngularAcceleration, SimulatedTripleSensor):
 #---------- Multiple category sensors ----------
 
 class SENSORS(Pressure, Temperature, Luminosity, Distance, Humidity, Color, Current, Voltage, Power):
-    def __init__(self, gauss="no"):
-        self._pressure    = PRESSURE(gauss=gauss)
-        self._temperature = TEMPERATURE(gauss=gauss)
-        self._luminosity  = LUMINOSITY(gauss=gauss)
-        self._distance    = DISTANCE(gauss=gauss)
-        self._humidity    = HUMIDITY(gauss=gauss)
-        self._color       = COLOR(gauss=gauss)
-        self._current     = CURRENT(gauss=gauss)
-        self._voltage     = VOLTAGE(gauss=gauss)
-        self._power       = POWER(gauss=gauss)
+    def __init__(self):
+        self._pressure    = PRESSURE()
+        self._temperature = TEMPERATURE()
+        self._luminosity  = LUMINOSITY()
+        self._distance    = DISTANCE()
+        self._humidity    = HUMIDITY()
+        self._color       = COLOR()
+        self._current     = CURRENT()
+        self._voltage     = VOLTAGE()
+        self._power       = POWER()
 
     def __str__(self):
         return "SENSORS"
@@ -408,24 +358,19 @@ class SENSORS(Pressure, Temperature, Luminosity, Distance, Humidity, Color, Curr
 
 
 class VELOCITY(Velocity):
-    def __init__(self, linlower=0, linupper=10, anglower=-100, angupper=100,
-                 linmean=10, linvariance=1, angmean=0, angvariance=1,
-                 gauss="no", digits=3):
-        self._linear =  LINEARVELOCITY(linlower, linupper, linlower, linupper, linlower, linupper,
-                                       linmean, linvariance, linmean, linvariance, linmean, linvariance,
-                                       gauss, digits)
-        self._angular = ANGULARVELOCITY(anglower, angupper, anglower, angupper, anglower, angupper,
-                                        angmean, angvariance, angmean, angvariance, angmean, angvariance,
-                                        gauss, digits)
+    def __init__(self, linlower=0, linupper=10, anglower=-100, angupper=100, digits=3):
+        self._linear =  LINEARVELOCITY(linlower, linupper, linlower, linupper, linlower, linupper, digits)
+        self._angular = ANGULARVELOCITY(anglower, angupper, anglower, angupper, anglower, angupper, digits)
+
     def __str__(self):
         return "VELOCITY (%s --- %s)" % (self._linear.__str__(), self._angular.__str__())
 
     def __getMeterPerSecondX__(self):
         return self._linear.__getMeterPerSecondX__()
-        
+
     def __getMeterPerSecondY__(self):
         return self._linear.__getMeterPerSecondY__()
-        
+
     def __getMeterPerSecondZ__(self):
         return self._linear.__getMeterPerSecondZ__()
 
@@ -444,36 +389,26 @@ class ACCELERATION(Acceleration):
         self._linear =  LINEARACCELERATION(linlower, linupper, linlower, linupper, linlower, linupper, digits)
         self._angular = ANGULARACCELERATION(anglower, angupper, anglower, angupper, anglower, angupper, digits)
 
-    def __init__(self, linlower=-10, linupper=10, anglower=-100, angupper=100,
-                 linmean=0, linvariance=1, angmean=0, angvariance=1,
-                 gauss="no", digits=3):
-        self._linear =  LINEARACCELERATION(linlower, linupper, linlower, linupper, linlower, linupper,
-                                           linmean, linvariance, linmean, linvariance, linmean, linvariance,
-                                           gauss, digits)
-        self._angular = ANGULARACCELERATION(anglower, angupper, anglower, angupper, anglower, angupper,
-                                            angmean, angvariance, angmean, angvariance, angmean, angvariance,
-                                            gauss, digits)
     def __str__(self):
         return "ACCELERATION (%s --- %s)" % (self._linear.__str__(), self._angular.__str__())
 
     def __getMeterPerSquareSecondX__(self):
         return self._linear.__getMeterPerSquareSecondX__()
-        
+
     def __getMeterPerSquareSecondY__(self):
         return self._linear.__getMeterPerSquareSecondY__()
-        
+
     def __getMeterPerSquareSecondZ__(self):
         return self._linear.__getMeterPerSquareSecondZ__()
-       
+
     def __getGravityX__(self):
         return self._linear.__getGravityX__()
-        
+
     def __getGravityY__(self):
         return self._linear.__getGravityY__()
 
     def __getGravityZ__(self):
         return self._linear.__getGravityZ__()
-
 
     def __getRadianPerSquareSecondX__(self):
         return self._angular.__getRadianPerSquareSecondX__()

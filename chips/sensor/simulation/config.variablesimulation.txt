@@ -1,0 +1,68 @@
+
+#------------------------------------------------------------------------#
+[HTTP]
+enabled = true
+port = 8888
+doc-root = htdocs
+
+#------------------------------------------------------------------------#
+[COAP]
+enabled = false
+port = 5683
+multicast = false
+
+#------------------------------------------------------------------------#
+[PLATFORM]
+
+architecture = X86
+# or (ARM6, ARM7, X64, ...)
+board = PC
+# or (RPI-1, RPI-2, RPI-3, MICA-USB, BEAGLEBONEBLACK, PC, ...)
+operating-system = WINDOWS7
+# or (RASPBIAN, DEBIAN, UBUNTU, LINUX, BUSYBOX, WINDOWS, WINDOWS7, WINDOWS10, ...)
+
+#------------------------------------------------------------------------#
+[BUSES]
+
+#------------------------------------------------------------------------#
+[DEVICES]
+
+#simulated_vtemperature = VTEMPERATURE
+#simulated_vtemperature = VTEMPERATURE mu:100 sigma:10
+#simulated_vtemperature = VTEMPERATURE distribution:normal
+#simulated_vtemperature = VTEMPERATURE distribution:normal mu:10.5 sigma:2.0
+#simulated_vtemperature = VTEMPERATURE distribution:lognorm
+#simulated_vtemperature = VTEMPERATURE distribution:expo lambd:0.1
+#simulated_vtemperature = VTEMPERATURE distribution:beta
+#simulated_vtemperature = VTEMPERATURE distribution:gamma
+#simulated_vtemperature = VTEMPERATURE distribution:weibull
+#simulated_vtemperature = VTEMPERATURE distribution:weibull alpha:10 beta:0.5 digits:1
+#simulated_vtemperature = VTEMPERATURE distribution:pareto
+#simulated_vtemperature = VTEMPERATURE distribution:pareto alpha:0.25
+
+#simulated_vpressure = VPRESSURE
+#simulated_vpressure = VPRESSURE mu:100000 sigma:10 altitude:300
+#simulated_vpressure = VPRESSURE distribution:expo lambd:0.00001
+
+#simulated_vluminosity = VLUMINOSITY
+#simulated_vdistance = VDISTANCE
+#simulated_vhumidity = VHUMIDITY
+#simulated_vcurrent = VCURRENT
+#simulated_vvoltage = VVOLTAGE
+#simulated_vpower = VPOWER
+#simulated_vcolor = VCOLOR
+#simulated_vcolor = VCOLOR mux:255 sigmax:0 muy:127 sigmay:63 muz:127 sigmaz:63
+
+#simulated_vsensors = VSENSORS
+
+#simulated_vlinear_velocity = VLINEARVELOCITY
+#simulated_vlinear_velocity = VLINEARVELOCITY mux:0 sigmax:2 muy:5 sigmay:1 muz:10 sigmaz:0.1
+#simulated_vlinear_velocity = VLINEARVELOCITY distribution:expo lambdx:0.1 lambdy:0.2 lambdz:0.3
+#simulated_vangular_velocity = VANGULARVELOCITY
+
+#simulated_vlinear_acceleration = VLINEARACCELERATION
+#simulated_vlinear_acceleration = VLINEARACCELERATION mux:0 sigmax:2 muy:5 sigmay:1 muz:10 sigmaz:0.1
+#simulated_vangular_acceleration = VANGULARACCELERATION
+
+
+
