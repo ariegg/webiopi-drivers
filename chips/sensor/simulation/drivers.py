@@ -2,5 +2,12 @@
 
 DRIVERS["simulatedsensors"] = ["PRESSURE", "TEMPERATURE", "LUMINOSITY", "DISTANCE", "HUMIDITY",
                          "COLOR", "CURRENT", "VOLTAGE", "POWER",
-                         "LINEARACCELERATION", "ANGULARACCELERATION", "ACCELERATION", "LINEARVELOCITY", "ANGULARVELOCITY", "VELOCITY",
-"SENSORS"]
+                         "LINEARVELOCITY", "ANGULARVELOCITY", "VELOCITY",
+                         "LINEARACCELERATION", "ANGULARACCELERATION", "ACCELERATION",
+                         "SENSORS"]
+DRIVERS["variablesimulatedsensors"] = ["VPRESSURE", "VTEMPERATURE", "VLUMINOSITY", "VDISTANCE", "VHUMIDITY",
+                         "VCOLOR", "VCURRENT", "VVOLTAGE", "VPOWER",
+                         "VLINEARVELOCITY", "VANGULARVELOCITY",
+                         "VLINEARACCELERATION", "VANGULARACCELERATION",
+                         "VSENSORS"]
+
