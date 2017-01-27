@@ -31,7 +31,7 @@
 #     no bus parameter is necessary.
 #   - You can use this device to do some testing prior to having the real physical chips
 #     available to e.g. create some user interface in advance.
-#   - You can use this devices also to check the correctness of some REST API calls
+#   - You can use this device also to check the correctness of some REST API calls
 #     that use the digital I/O values.
 #
 #   Implementation remarks
@@ -39,6 +39,7 @@
 #   - For simplicity, the simulated digital device name is just the upper case version of
 #     the underlying digital abstraction.
 #
+
 from webiopi.devices.digital import GPIOPort
 from webiopi.utils.types import toint
 
