@@ -1,33 +1,6 @@
 
-#------------------------------------------------------------------------#
-[HTTP]
-enabled = true
-port = 8888
-doc-root = htdocs
-
-#------------------------------------------------------------------------#
-[COAP]
-enabled = false
-port = 5683
-multicast = false
-
-#------------------------------------------------------------------------#
-[PLATFORM]
-
-architecture = X86
-# or (ARM6, ARM7, X64, ...)
-board = PC
-# or (RPI-1, RPI-2, RPI-3, MICA-USB, BEAGLEBONEBLACK, PC, ...)
-operating-system = WINDOWS7
-# or (RASPBIAN, DEBIAN, UBUNTU, LINUX, BUSYBOX, WINDOWS, WINDOWS7, WINDOWS10, ...)
-
-#------------------------------------------------------------------------#
-[BUSES]
-
-#------------------------------------------------------------------------#
 [DEVICES]
 
 lis3dh = LIS3DH
 #lis3dh = LIS3DH slave:0x19 grange:4 odr:10 hr:no
-
 
