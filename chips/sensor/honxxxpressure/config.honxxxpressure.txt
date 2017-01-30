@@ -1,1 +1,9 @@
 
+[DEVICES]
+
+myhsc = HONXSCPTI
+#myhsc = HONXSCPTI unit:psi pmax:150.0
+#myhsc = HONXSCPTI unit:bar pmin:4 pmax:150.0 transfer:B
+#myhsc1 = HONXSCPTI unit:psi pmax:150.0 transfer:F
+#myhsc2 = HONABPPTS unit:bar pmin:-0.06 pmax:0.06
+
