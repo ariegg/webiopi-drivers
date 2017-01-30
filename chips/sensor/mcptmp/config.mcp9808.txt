@@ -1,26 +1,3 @@
-[SCRIPTS]
-#thermoscript = thermometer.py
-
-#------------------------------------------------------------------------#
-
-[HTTP]
-# HTTP Server configuration
-enabled = true
-port = 8888
-doc-root = htdocs
-
-#------------------------------------------------------------------------#
-
-[COAP]
-enabled = false
-port = 5683
-multicast = false
-
-#------------------------------------------------------------------------#
-[PLATFORM]
-architecture = X86
-board = PC
-operating-system = WINDOWS7
 
 [DEVICES]
 
