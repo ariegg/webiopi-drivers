@@ -1,0 +1,36 @@
+
+#------------------------------------------------------------------------#
+[HTTP]
+enabled = true
+port = 8888
+doc-root = htdocs
+
+#------------------------------------------------------------------------#
+[COAP]
+enabled = false
+port = 5683
+multicast = false
+
+#------------------------------------------------------------------------#
+[PLATFORM]
+
+architecture = X86
+# or (ARM6, ARM7, X64, ...)
+board = PC
+# or (RPI-1, RPI-2, RPI-3, MICA-USB, BEAGLEBONEBLACK, PC, ...)
+operating-system = WINDOWS7
+# or (RASPBIAN, DEBIAN, UBUNTU, LINUX, BUSYBOX, WINDOWS, WINDOWS7, WINDOWS10, ...)
+
+#------------------------------------------------------------------------#
+[BUSES]
+
+#------------------------------------------------------------------------#
+[DEVICES]
+
+#ina219 = INA219 vrange:16 gaindiv:1 badc:0x0 sadc:0x0 mode:0x3
+#ina219 = INA219 shunt:0.002 imax:10 vmax:12
+#ina219 = INA219 shunt:0.1 gaindiv:1 currentLSB:0.0001
+ina219 = INA219 
+
+
+
