@@ -1,0 +1,24 @@
+
+[HTTP]
+# HTTP Server configuration
+enabled = true
+port = 8888
+doc-root = htdocs
+
+#------------------------------------------------------------------------#
+
+[COAP]
+enabled = false
+port = 5683
+multicast = false
+
+#------------------------------------------------------------------------#
+[PLATFORM]
+architecture = X86
+board = PC
+operating-system = WINDOWS7
+
+
+[DEVICES]
+pca9535 = PCA9535 
+#pca9555 = PCA9555 slave:0x22 
