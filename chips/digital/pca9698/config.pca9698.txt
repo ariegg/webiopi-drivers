@@ -1,29 +1,5 @@
 
-[HTTP]
-# HTTP Server configuration
-enabled = true
-port = 8888
-doc-root = htdocs
-
-#------------------------------------------------------------------------#
-
-[COAP]
-enabled = false
-port = 5683
-multicast = false
-
-#------------------------------------------------------------------------#
-[PLATFORM]
-architecture = X86
-board = PC
-operating-system = WINDOWS7
-
-[BUSES]
-
 [DEVICES]
 pca9698 = PCA9698
 #pca9698 = PCA9698 slave:0x22 invert_oe:yes outconf:0xF0
-
-#------------------------------------------------------------------------#
-
 
