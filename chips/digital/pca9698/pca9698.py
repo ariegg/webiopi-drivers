@@ -16,13 +16,13 @@
 #
 #   1.0    2014/04/25    Initial release.
 #   1.1    2017-01-30    Added support for bus selection. Temporarily removed "banks"
-#                        parameter usage for GPIOPort.
+#                        parameter usage for GPIOPort. Modified outconf parameter check.
 #
 #   Config parameters
 #
-#   - slave         7 bit       I2C slave address
-#   - invert_oe     yes, no     Invert OE pin 
-#   - outconf       8 bit       Value of the OUTCONF register
+#   - slave         7 bit       I2C slave address, default is 0x20.
+#   - invert_oe     yes, no     Invert OE pin, default is "no".
+#   - outconf       8 bit       Value of the OUTCONF register, default is 0xFF.
 #   - bus           String      Name ot the I2C bus
 #
 #   Usage remarks
@@ -84,9 +84,8 @@ class PCA9698(GPIOPort, I2C):
     def __init__(self, slave=0x20, invert_oe=False, outconf=0xFF, bus=None):
         # Check parameter sanity
         oconf = toint(outconf)
-        if oconf != 0xFF:
-            if not oconf in range(0, 0xFF):
-                raise ValueError("outconf value %d out of range [%d..%d]" % (oconf, 0x00, 0xFE))
+        if not oconf in range(0, 0xFF + 1):
+            raise ValueError("outconf value %d out of range [%d..%d]" % (oconf, 0x00, 0xFF))
 
         # Go for it
         I2C.__init__(self, toint(slave), bus)
