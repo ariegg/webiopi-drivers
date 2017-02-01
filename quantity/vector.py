@@ -17,6 +17,8 @@
 #   Changelog
 #
 #   1.0    2017-01-24    Initial release.
+#   1.1    2017-02-01    Bugfix unitShort. Refactoriung of method unit.
+#                        Added quantityString.
 #
 #
 #   Examples
@@ -62,7 +64,10 @@ class QuantityVector():
         return self._vector[index]
 
     def __str__(self):
-        return "%g %s" % (self.measurand(), self.unit())
+        return self.quantityString()
+
+    def quantityString(self, compact=False):
+        return "%g %s" % (self.measurand(), self.unit(compact))
 
     def vectorString(self):
         return "QuantityVector %s" % self._vector.__str__()
@@ -82,7 +87,13 @@ class QuantityVector():
         q["q7"] = self.candela()
         return q
 
-    def unit(self):
+    def unit(self, compact=False):
+        if compact:
+            return self.unitShort()
+        else:
+            return self.unitLong()
+
+    def unitLong(self):
         unit = ''
         separator = ''
         for i in range(1,8):
@@ -102,7 +113,10 @@ class QuantityVector():
             qi = self._vector[i]
             if qi != 0:
                 if first:
-                    separator = ''
+                    if qi < 0:
+                        separator = '1/'
+                    else:
+                        separator = ''
                     first = False
                 else:
                     if qi > 0:

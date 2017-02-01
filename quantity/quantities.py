@@ -17,6 +17,7 @@
 #   Changelog
 #
 #   1.0    2017-01-24    Initial release.
+#   1.1    2017-02-01    Added quantities.
 #
 #
 #   Examples
@@ -36,14 +37,20 @@
 #       x = Qposition(1)
 #       v = Qlinearvelocity(2.6)
 #       s = Qspeed(4)
+#       v = Qangularvelocity(50)
 #       f = Qfrequency(50)
-#       a = Qacceleration(2)
-
+#       a = Qlinearacceleration(2)
+#       g = Qgravity(1)
+#       a = Qangularacceleration(3)
+#       m = Qmass(1)
+#       t = Qtime(1)
+#       m = Qmolarity(10)
+#       i = QluminousIntensity(100)
 
 from vector import QuantityVector
 
 
-#---------- Predefined quantities according to abstractions ----------
+#---------- Predefined quantities according to sensor abstractions ----------
         
 def Qtemperature(measurand=0):
         return QuantityVector(measurand, kelvin=1)
@@ -78,17 +85,30 @@ def Qlinearvelocity(measurand=0):
 def Qspeed(measurand=0):
         return QuantityVector(measurand, meter=1, second=-1)
 
+def Qangularvelocity(measurand=0):
+        return QuantityVector(measurand, second=-1)
+
 def Qfrequency(measurand=0):
         return QuantityVector(measurand, second=-1)
 
-def Qacceleration(measurand=0):
+def Qlinearacceleration(measurand=0):
         return QuantityVector(measurand, meter=1, second=-2)
 
-def Qtime(measurand=0):
-        return QuantityVector(measurand, second=1)
+def Qgravity(measurand=0):
+        return QuantityVector(measurand, meter=1, second=-2)
+
+def Qangularacceleration(measurand=0):
+        return QuantityVector(measurand, second=-2)
 
 def Qmass(measurand=0):
         return QuantityVector(measurand, kilogram=1)
 
+def Qtime(measurand=0):
+        return QuantityVector(measurand, second=1)
 
+def Qmolarity(measurand=0):
+        return QuantityVector(measurand, mol=1)
+
+def QluminousIntensity(measurand=0):
+        return QuantityVector(measurand, candela=1)
 
