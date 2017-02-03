@@ -11,3 +11,11 @@ In order to use the drivers in the original WebIOPi 0.7.22 you have to comment o
 This repository does not contain a 1:1 installable package of WebIOPi that can be installed and run as it is. It is more a library of logical separated components that form the hardware abstraction layer including the generic REST API mappings, the different hardware bus implementations and the available chip drivers for WebIOPi based on the abstraction components.
 
 This repository was created to save all extension work for WebIOPi in one place in a consistent way until it is decided how to proceed with the whole package.
+
+#Bus extension
+
+All drivers in this repository use the "bus" extension created by me. This extension allows to select different bus providers for I2C, SPI and UART (aka Serial). The standard bus "drivers" of WebIOPi use the /dev nodes in the userspace. Other variants are provided to
+- use USB-based protocol conversion chips for I2C and SPI
+- simulate bus communication, partly with the help of simulated memory chips
+- use USB-based protocol conversion chips for I2C and SPI on the Windows platform with dll's
+- use the PySerial library to provide extended serial support
