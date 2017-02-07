@@ -1,0 +1,9 @@
+
+[DEVICES]
+
+tcs34725 = TCS34725
+#tcs34725 = TCS34725 time:500 gain:1 relative:no auto:yes
+
+
+
+
