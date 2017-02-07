@@ -1,0 +1,14 @@
+# Driver lookup file for mcp4XXX0.py
+
+# Single channel chips
+MCP41010
+MCP41050
+MCP41100
+
+# Dual channel chips
+MCP42010
+MCP42050
+MCP42100
+
+# Daisy chain configuration
+MCP4XDC
