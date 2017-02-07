@@ -30,6 +30,9 @@
 #   CAUTION: This version does not work on any LINUX OS!!
 #
 #   A singleton for the opened DLL object named MCPDLL is used here.
+#   A singleton for the opened DLL object handle named HANDLE is used here.
+#   This driver currently works only for the standard vid/pid device ids and only one
+#   chip (index 0).
 #
 
 from webiopi.devices.bus import Bus, SPI_Bus
@@ -38,7 +41,8 @@ from webiopi.utils.logger import debug
 from ctypes import *
 
 MCPDLL = None
-isConnected = False
+HANDLE = None
+CONNECTED = False
 
 class SPI_MCP2210_WINDLL(SPI_Bus):
 
@@ -70,7 +74,8 @@ class SPI_MCP2210_WINDLL(SPI_Bus):
 
     def open(self):
         global MCPDLL
-        global isConnected
+        global CONNECTED
+        
         if MCPDLL is None:
             debug("Opening SPI bus device - %s(dev=%s)"  % (self.__class__.__name__, self.device))
             try:
@@ -83,17 +88,21 @@ class SPI_MCP2210_WINDLL(SPI_Bus):
                 raise Exception("Cannot connect to MCP2210 chip via %s" % self.device)
             self.openMCPDevice()
 
-        if not isConnected:
+        if not CONNECTED:
             raise Exception("Cannot open MCP2210 chip via %s" % self.device)
 
     def close(self):
         global MCPDLL
+        global HANDLE
+
         if MCPDLL is not None:
             debug("Closing SPI bus device - %s(dev=%s)"  % (self.__class__.__name__, self.device))
-            success = MCPDLL.Mcp2210_Close(self.handle)
+            success = MCPDLL.Mcp2210_Close(HANDLE)
             if success != 0:
                 raise Exception("Cannot close MCP2210 chip via %s" % self.device)
             MCPDLL = None
+            HANDLE = None
+            CONNECTED = False
         SPI_Bus.close(self)
 
 
@@ -107,7 +116,9 @@ class SPI_MCP2210_WINDLL(SPI_Bus):
 
     def openMCPDevice(self):
         global MCPDLL
-        global isConnected
+        global CONNECTED
+        global HANDLE
+        
         index0 = c_uint32(0)
 
         # Do first dummy call to get the needed path size put into pathsize
@@ -121,18 +132,21 @@ class SPI_MCP2210_WINDLL(SPI_Bus):
 
         # Do second call to get the final handle
         path = create_unicode_buffer(int(pathsize.value/sizeof(c_wchar)))
-        self.handle = c_void_p(MCPDLL.Mcp2210_OpenByIndex(self.vid, self.pid, index0, path, byref(pathsize)));
+        HANDLE = c_void_p(MCPDLL.Mcp2210_OpenByIndex(self.vid, self.pid, index0, path, byref(pathsize)));
         success = MCPDLL.Mcp2210_GetLastError()
         if success != 0:
             raise Exception("Cannot open MCP2210 chip via %s" % self.device)
         else:
-            isConnected = True
-            debug("Opened SPI device - %s (handle=0x%x)" % (self.__str__(), self.handle.value))
+            CONNECTED = True
+            debug("Opened SPI device - %s (handle=0x%x)" % (self.__str__(), HANDLE.value))
 
 
 #---------- Basic read/write communication via MCP2210 DLL API calls ----------
 
     def xfer(self, data=[]):
+        global MCPDLL
+        global HANDLE
+        
         debug("%s xfer send %s" % (self.__str__(), data))
         size = len(data)
         txbuff           = (c_ubyte * size)(*data)
@@ -147,7 +161,7 @@ class SPI_MCP2210_WINDLL(SPI_Bus):
         pDataToCsDelay   = c_uint(self.data_to_cs_delay)
         pMode            = c_ubyte(self.mode)
 
-        success = MCPDLL.Mcp2210_xferSpiDataEx(self.handle, txbuff, rxbuff, byref(pSpeed), byref(pXferSize),
+        success = MCPDLL.Mcp2210_xferSpiDataEx(HANDLE, txbuff, rxbuff, byref(pSpeed), byref(pXferSize),
                                                CsMask, byref(pIdleCsVal), byref(pActiveCsVal),
                                                byref(pCsToDataDelay), byref(pDataToCsDelay), byref(pDataToDataDelay),
                                                byref(pMode))
