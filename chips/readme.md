@@ -1,7 +1,7 @@
 
 Here you find the code for chip drivers.
 
-The drivers are grouped into subdirectories with the naming scheme ./{abstraction}/{chip-name}. On the lowest level, there is 
+The drivers are grouped into subdirectories with the naming scheme ./{abstraction}/{chip(family)name}. On the lowest level, there is 
 - the driver file (*.py)
 - a code fragment to add the driver file to the driver class lookup table at 
 the end in the corresponding abstraction \_\_init\_\_.py code file (drivers.py)
