@@ -1,0 +1,39 @@
+
+[HTTP]
+# HTTP Server configuration
+enabled = true
+port = 8888
+doc-root = htdocs
+
+#------------------------------------------------------------------------#
+
+[COAP]
+enabled = false
+port = 5683
+multicast = false
+
+#------------------------------------------------------------------------#
+[PLATFORM]
+architecture = X86
+board = PC
+operating-system = WINDOWS7
+
+[BUSES]
+#spi0 = SPI_MCP2210_WINDLL speed:100000
+
+[DEVICES]
+#mcp41010 = MCP41010
+#mcp41050 = MCP41050
+mcp41100 = MCP41100 chip:2
+
+#mcp42010 = MCP42010 speed:200000
+mcp42010_0 = MCP42010
+mcp42010_1 = MCP42010 chip:1
+#mcp42050 = MCP42050
+#mcp42100 = MCP42100
+
+#mcp4xdc = MCP4XDC
+#mcp4xdc = MCP4XDC channelCount:5
+#------------------------------------------------------------------------#
+
+
