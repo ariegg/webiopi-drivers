@@ -1,25 +1,4 @@
 
-[HTTP]
-# HTTP Server configuration
-enabled = true
-port = 8888
-doc-root = htdocs
-
-#------------------------------------------------------------------------#
-
-[COAP]
-enabled = false
-port = 5683
-multicast = false
-
-#------------------------------------------------------------------------#
-[PLATFORM]
-architecture = X86
-board = PC
-operating-system = WINDOWS7
-
-[BUSES]
-
 [DEVICES]
 #mcp41010 = MCP41010
 #mcp41050 = MCP41050
@@ -33,6 +12,4 @@ operating-system = WINDOWS7
 
 #mcp4xdc = MCP4XDC
 #mcp4xdc = MCP4XDC channelCount:5
-#------------------------------------------------------------------------#
-
 
