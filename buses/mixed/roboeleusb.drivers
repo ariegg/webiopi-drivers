@@ -1,0 +1,5 @@
+# Driver lookup file for Robot Electronics USB-ISS and USB-I2C adapters
+
+I2C_RE_USB_ISS
+SPI_RE_USB_ISS
+I2C_RE_USB_I2C
